@@ -89,6 +89,7 @@ class DBLayers:
                 if stale:
                     logger.info("layer is stale - rereading mapnik style")
                     layer.provider.mapnik = None
+                    return self.fetch_layer_from_db(key)
 
                 return layer
         return self.fetch_layer_from_db(key)
