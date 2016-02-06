@@ -446,7 +446,7 @@ def _open_layer(driver_name, parameters, dirpath, the_layer):
     if driver_name == 'PostgreSQL' or driver_name == 'OCI' or driver_name == 'MySQL':
         if 'query' in parameters:
             # New approach: pass in selection_id directly
-            if 'selection_id' in the_layer._query['selection_id']:
+            if 'selection_id' in the_layer._query:
                 # We'll support user_id because of legacy instances
                 # that have {user_id} in the query string.
                 parameters['selection_id'] = parameters['user_id'] = 'selection_id'
