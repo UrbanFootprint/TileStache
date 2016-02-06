@@ -449,7 +449,7 @@ def _open_layer(driver_name, parameters, dirpath, the_layer):
             if 'selection_id' in the_layer._query:
                 # We'll support user_id because of legacy instances
                 # that have {user_id} in the query string.
-                parameters['selection_id'] = parameters['user_id'] = 'selection_id'
+                parameters['selection_id'] = parameters['user_id'] = the_layer._query['selection_id']
             elif parameters.get('user_id_lookup'):
             # ABL hack resolve user_id from user_id_lookup and the_layer._query.user_id
                 parameters['user_id'] = parameters['user_id_lookup'][the_layer._query['user_id'][0]]
