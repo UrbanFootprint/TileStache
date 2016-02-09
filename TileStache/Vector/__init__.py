@@ -170,6 +170,42 @@ import logging
 from time import time
 logger = logging.getLogger(__name__)
 
+import functools
+class memoized(object):
+   '''Decorator. Caches a function's return value each time it is called.
+   If called later with the same arguments, the cached value is returned
+   (not reevaluated).
+   '''
+   def __init__(self, func):
+      self.func = func
+      self.cache = {}
+   def __call__(self, *args):
+      # if not isinstance(args, collections.Hashable):
+      #    # uncacheable. a list, for instance.
+      #    # better to not cache than blow up.
+      #    return self.func(*args)
+      if args in self.cache:
+         return self.cache[args]
+      else:
+         value = self.func(*args)
+         self.cache[args] = value
+         return value
+   def __repr__(self):
+      '''Return the function's docstring.'''
+      return self.func.__doc__
+   def __get__(self, obj, objtype):
+      '''Support instance methods.'''
+      return functools.partial(self.__call__, obj)
+
+@memoized
+def get_datasource(driver, source_name):
+    return driver.Open(str(source_name))
+
+@memoized
+def dirver(driver_name):
+    return ogr.GetDriverByName(str(driver_name))
+
+
 class VectorResponse:
     """ Wrapper class for Vector response that makes it behave like a PIL.Image object.
     
@@ -375,8 +411,8 @@ def _open_layer(driver_name, parameters, dirpath, the_layer):
         raise KnownUnknown('Got a driver type Vector doesn\'t understand: "%s". Need one of %s.' % (driver_name, ', '.join(okay_drivers.keys())))
 
     driver_name = okay_drivers[driver_name.lower()]
-    driver = ogr.GetDriverByName(str(driver_name))
-    
+    driver = get_driver(driver_name)
+
     #
     # Set up the datasource
     #
@@ -434,7 +470,7 @@ def _open_layer(driver_name, parameters, dirpath, the_layer):
         source_name = file_path
 
     start_time = time()
-    datasource = driver.Open(str(source_name))
+    datasource = get_datasource(driver, source_name)
     logger.info('TileStache.Vector.__init__._open_layer() in %.3f', time() - start_time)
 
     if datasource is None:
