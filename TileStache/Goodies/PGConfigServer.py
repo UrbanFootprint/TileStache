@@ -11,7 +11,6 @@ import logging
 import psycopg2
 import json
 
-
 try:
     from json import load as json_load
 except ImportError:
@@ -116,7 +115,7 @@ class PGConfiguration:
         return config_singleton
 
 
-class WSGIServer (TileStache.WSGITileServer):
+class WSGIServer(TileStache.WSGITileServer):
 
     """
     Wrap WSGI application, passing it a custom configuration.
@@ -131,12 +130,20 @@ class WSGIServer (TileStache.WSGITileServer):
     the configuration server.
     """
 
-    def __init__(self, dbname, user, pw=None, debug_level="INFO"):
+    def __init__(self, dotenv_file, debug_level="INFO"):
+        import os
+        import dotenv
         logging.basicConfig(level=debug_level)
-        db_connection_dict = dict(dbname=dbname, user=user)
 
-        if pw:
-            db_connection_dict['password'] = pw
+        dotenv.read_dotenv(dotenv_file)
+        db_connection_dict = {
+            'database': os.environ['TILESTACHE_DATABASE_NAME'],
+            'user':     os.environ['TILESTACHE_DATABASE_USERNAME'],
+            'password': os.environ['TILESTACHE_DATABASE_PASSWORD'],
+            'host':     os.environ['TILESTACHE_DATABASE_HOST'],
+            'port':     os.environ['TILESTACHE_DATABASE_PORT'],
+        }
+
         dirpath = '/tmp/stache'
 
         connection = psycopg2.connect(**db_connection_dict)
