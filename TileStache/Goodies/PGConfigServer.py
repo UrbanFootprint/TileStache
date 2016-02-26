@@ -10,6 +10,8 @@ from urllib import urlopen
 import logging
 import psycopg2
 import json
+import os
+import dotenv
 
 try:
     from json import load as json_load
@@ -131,8 +133,6 @@ class WSGIServer(TileStache.WSGITileServer):
     """
 
     def __init__(self, dotenv_file, debug_level="INFO"):
-        import os
-        import dotenv
         logging.basicConfig(level=debug_level)
 
         dotenv.read_dotenv(dotenv_file)
@@ -144,7 +144,7 @@ class WSGIServer(TileStache.WSGITileServer):
             'port':     os.environ['TILESTACHE_DATABASE_PORT'],
         }
 
-        dirpath = '/tmp/stache'
+        dirpath = os.environ['TILESTACHE_TMP_DIR']
 
         connection = psycopg2.connect(**db_connection_dict)
         config = PGConfiguration(connection, dirpath, debug_level)
